@@ -1,6 +1,6 @@
 import cookie from 'js-cookie';
 
-// Set in cookie
+// set in cookie
 export const setCookie = (key, value) => {
   if (window !== 'undefined') {
     cookie.set(key, value, {
@@ -8,45 +8,41 @@ export const setCookie = (key, value) => {
     });
   }
 };
-
-// Remove from cookie
+// remove from cookie
 export const removeCookie = (key) => {
   if (window !== 'undefined') {
-    cookie.remove(key);
+    cookie.remove(key, {
+      expires: 1,
+    });
   }
 };
-
-// Get from cookie such as stored token
+// get from cookie such as stored token
+// will be useful when we need to make request to server with token
 export const getCookie = (key) => {
   if (window !== 'undefined') {
     return cookie.get(key);
   }
 };
-
-// Set in localStorage
+// set in localstorage
 export const setLocalStorage = (key, value) => {
   if (window !== 'undefined') {
     localStorage.setItem(key, JSON.stringify(value));
   }
 };
-
-// Remove from localStorage
+// remove from localstorage
 export const removeLocalStorage = (key) => {
   if (window !== 'undefined') {
     localStorage.removeItem(key);
   }
 };
-
-// Authenticate user by passing data to cookie and localStorage during signin
-export const authenticate = (res, next) => {
-  console.log('Authenticate helper on signin response', res);
-  setCookie('token', res.data.token);
-  setLocalStorage('user', res.data.user);
-
+// authenticate user by passing data to cookie and localstorage during signin
+export const authenticate = (response, next) => {
+  console.log('AUTHENTICATE HELPER ON SIGNIN RESPONSE', response);
+  setCookie('token', response.data.token);
+  setLocalStorage('user', response.data.user);
   next();
 };
-
-// Access user info from localStorage
+// access user info from localstorage
 export const isAuth = () => {
   if (window !== 'undefined') {
     const cookieChecked = getCookie('token');
@@ -60,19 +56,17 @@ export const isAuth = () => {
   }
 };
 
-// Sign Out
-export const signOut = (next) => {
+export const signout = (next) => {
   removeCookie('token');
   removeLocalStorage('user');
   next();
 };
 
-// Update User
-export const updateUser = (res, next) => {
-  console.log('Update User in localStorage', res);
+export const updateUser = (response, next) => {
+  console.log('UPDATE USER IN LOCALSTORAGE HELPERS', response);
   if (typeof window !== 'undefined') {
     let auth = JSON.parse(localStorage.getItem('user'));
-    auth = res.data;
+    auth = response.data;
     localStorage.setItem('user', JSON.stringify(auth));
   }
   next();

@@ -2,71 +2,65 @@ import React, { useState } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.min.css';
 
-import { authenticate, isAuth } from './helpers';
+import Layout from '../Layout';
+import { authenticate, isAuth } from '../../helpers';
 import Google from './Google';
 import Facebook from './Facebook';
+import 'react-toastify/dist/ReactToastify.min.css';
 
-const SignIn = ({ history }) => {
-  const [formData, setFormData] = useState({
+const Signin = ({ history }) => {
+  const [values, setValues] = useState({
     email: '',
     password: '',
     buttonText: 'Submit',
   });
 
-  const { email, password, buttonText } = formData;
+  const { email, password, buttonText } = values;
 
-  const handleChange = (event) => {
-    setFormData({ ...formData, [event.target.name]: event.target.value });
+  const handleChange = (name) => (event) => {
+    // console.log(event.target.value);
+    setValues({ ...values, [name]: event.target.value });
   };
 
-  const informParent = (res) => {
-    authenticate(res, () => {
+  const informParent = (response) => {
+    authenticate(response, () => {
       isAuth() && isAuth().role === 'admin'
         ? history.push('/admin')
-        : history.push('/dashboard');
+        : history.push('/private');
     });
   };
 
-  const handleSubmit = async (event) => {
+  const clickSubmit = (event) => {
     event.preventDefault();
-    setFormData({ ...formData, buttonText: 'Submitting' });
-
-    const data = JSON.stringify({ email, password });
-
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
-
-    try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_API}/auth/signin`,
-        data,
-        config
-      );
-
-      console.log('Signin Success', res);
-
-      authenticate(res, () => {
-        setFormData({
-          ...formData,
-          email: '',
-          password: '',
-          buttonText: 'Submitted',
+    setValues({ ...values, buttonText: 'Submitting' });
+    axios({
+      method: 'POST',
+      url: `${process.env.REACT_APP_API}/signin`,
+      data: { email, password },
+    })
+      .then((response) => {
+        console.log('SIGNIN SUCCESS', response);
+        // save the response (user, token) localstorage/cookie
+        authenticate(response, () => {
+          setValues({
+            ...values,
+            name: '',
+            email: '',
+            password: '',
+            buttonText: 'Submitted',
+          });
+          // toast.success(`Hey ${response.data.user.name}, Welcome back!`);
+          isAuth() && isAuth().role === 'admin'
+            ? history.push('/admin')
+            : history.push('/private');
         });
-        // toast.success(`${response.data.user.name}, welcome back!`);
-        isAuth() && isAuth().role === 'admin'
-          ? history.push('/admin')
-          : history.push('/dashboard');
+      })
+      .catch((error) => {
+        console.log('SIGNIN ERROR', error.response.data);
+        setValues({ ...values, buttonText: 'Submit' });
+        toast.error(error.response.data.error);
       });
-    } catch (err) {
-      console.log('Signin Error', err.response.data);
-      setFormData({ ...formData, buttonText: 'Submit' });
-      toast.error(err.response.data.error);
-    }
   };
 
   const signinForm = () => (
@@ -74,27 +68,25 @@ const SignIn = ({ history }) => {
       <div className='form-group'>
         <label className='text-muted'>Email</label>
         <input
-          type='email'
-          name='email'
+          onChange={handleChange('email')}
           value={email}
+          type='email'
           className='form-control'
-          onChange={handleChange}
         />
       </div>
 
       <div className='form-group'>
         <label className='text-muted'>Password</label>
         <input
-          type='password'
-          name='password'
+          onChange={handleChange('password')}
           value={password}
+          type='password'
           className='form-control'
-          onChange={handleChange}
         />
       </div>
 
       <div>
-        <button className='btn btn-primary' onClick={handleSubmit}>
+        <button className='btn btn-primary' onClick={clickSubmit}>
           {buttonText}
         </button>
       </div>
@@ -102,22 +94,24 @@ const SignIn = ({ history }) => {
   );
 
   return (
-    <div className='col-md-6 offset-md-3'>
-      <ToastContainer />
-      {isAuth() ? <Redirect to='/dashboard' /> : null}
-      <h1 className='p-5 text-center'>SignIn</h1>
-      <Google informParent={informParent} />
-      <Facebook informParent={informParent} />
-      {signinForm()}
-      <br />
-      <Link
-        to='/auth/password/forgot'
-        className='btn btn-sm btn-outline-danger'
-      >
-        Forgot Password
-      </Link>
-    </div>
+    <Layout>
+      <div className='col-md-6 offset-md-3'>
+        <ToastContainer />
+        {isAuth() ? <Redirect to='/' /> : null}
+        <h1 className='p-5 text-center'>Signin</h1>
+        <Google informParent={informParent} />
+        <Facebook informParent={informParent} />
+        {signinForm()}
+        <br />
+        <Link
+          to='/auth/password/forgot'
+          className='btn btn-sm btn-outline-danger'
+        >
+          Forgot Password
+        </Link>
+      </div>
+    </Layout>
   );
 };
 
-export default SignIn;
+export default Signin;

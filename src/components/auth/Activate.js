@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// import { Link, Redirect } from 'react-router-dom';
+import Layout from '../Layout';
 import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import { ToastContainer, toast } from 'react-toastify';
@@ -13,64 +13,51 @@ const Activate = ({ match }) => {
   });
 
   useEffect(() => {
-    console.log('activate activate activate');
     let token = match.params.token;
     let { name } = jwt.decode(token);
     // console.log(token);
     if (token) {
       setValues({ ...values, name, token });
     }
+    // eslint-disable-next-line
   }, []);
 
-  const { name, token, show } = values;
+  const { name, token } = values;
 
-  const handleSubmit = async (event) => {
+  const clickSubmit = (event) => {
     event.preventDefault();
-
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
-
-    const data = JSON.stringify({ token });
-
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API}/auth/account-activation`,
-        data,
-        config
-      );
-
-      console.log('Activation Success', response);
-      setValues({
-        ...values,
-        token: '',
-        show: false,
+    axios({
+      method: 'POST',
+      url: `${process.env.REACT_APP_API}/account-activation`,
+      data: { token },
+    })
+      .then((response) => {
+        console.log('ACCOUNT ACTIVATION', response);
+        setValues({ ...values, show: false });
+        toast.success(response.data.message);
+      })
+      .catch((error) => {
+        console.log('ACCOUNT ACTIVATION ERROR', error.response.data.error);
+        toast.error(error.response.data.error);
       });
-      toast.success(response.data.message);
-    } catch (err) {
-      console.log('Activation Error', err.response.data.error);
-      toast.error(err.response.data.error);
-    }
   };
 
   const activationLink = () => (
     <div className='text-center'>
-      <h1 className='p-5'>
-        Hi {name}, are you ready to activate your account?
-      </h1>
-      <button className='btn btn-outline-primary' onClick={handleSubmit}>
+      <h1 className='p-5'>Hey {name}, Ready to activate your account?</h1>
+      <button className='btn btn-outline-primary' onClick={clickSubmit}>
         Activate Account
       </button>
     </div>
   );
 
   return (
-    <div className='col-md-6 offset-md-3'>
-      <ToastContainer />
-      {activationLink()}
-    </div>
+    <Layout>
+      <div className='col-md-6 offset-md-3'>
+        <ToastContainer />
+        {activationLink()}
+      </div>
+    </Layout>
   );
 };
 

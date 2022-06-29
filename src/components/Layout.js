@@ -1,11 +1,10 @@
 import React, { Fragment } from 'react';
 import { Link, withRouter } from 'react-router-dom';
+import { isAuth, signout } from '../helpers';
 
-import { isAuth, signOut } from './auth/helpers';
-
-const Layout = ({ children, history }) => {
+const Layout = ({ children, match, history }) => {
   const isActive = (path) => {
-    if (history.location.pathname === path) {
+    if (match.path === path) {
       return { color: '#000' };
     } else {
       return { color: '#fff' };
@@ -24,12 +23,12 @@ const Layout = ({ children, history }) => {
         <Fragment>
           <li className='nav-item'>
             <Link to='/signin' className='nav-link' style={isActive('/signin')}>
-              Sign In
+              Signin
             </Link>
           </li>
           <li className='nav-item'>
             <Link to='/signup' className='nav-link' style={isActive('/signup')}>
-              Sign Up
+              Signup
             </Link>
           </li>
         </Fragment>
@@ -37,7 +36,7 @@ const Layout = ({ children, history }) => {
 
       {isAuth() && isAuth().role === 'admin' && (
         <li className='nav-item'>
-          <Link to='/admin' className='nav-link' style={isActive('/admin')}>
+          <Link className='nav-link' style={isActive('/admin')} to='/admin'>
             {isAuth().name}
           </Link>
         </li>
@@ -45,11 +44,7 @@ const Layout = ({ children, history }) => {
 
       {isAuth() && isAuth().role === 'subscriber' && (
         <li className='nav-item'>
-          <Link
-            to='/dashboard'
-            className='nav-link'
-            style={isActive('/dashboard')}
-          >
+          <Link className='nav-link' style={isActive('/private')} to='/private'>
             {isAuth().name}
           </Link>
         </li>
@@ -60,13 +55,13 @@ const Layout = ({ children, history }) => {
           <span
             className='nav-link'
             style={{ cursor: 'pointer', color: '#fff' }}
-            onClick={() =>
-              signOut(() => {
+            onClick={() => {
+              signout(() => {
                 history.push('/');
-              })
-            }
+              });
+            }}
           >
-            Sign Out
+            Signout
           </span>
         </li>
       )}

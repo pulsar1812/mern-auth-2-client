@@ -1,35 +1,31 @@
 import React from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
-
-import Layout from './components/Layout';
-import Home from './components/Home';
-import Dashboard from './components/Dashboard';
-import Admin from './components/Admin';
-import SignUp from './components/auth/SignUp';
-import SignIn from './components/auth/SignIn';
+import Home from './Home';
+import Signup from './components/auth/Signup';
+import Signin from './components/auth/Signin';
 import Activate from './components/auth/Activate';
+import Dashboard from './Dashboard';
+import Admin from './Admin';
 import PrivateRoute from './components/routing/PrivateRoute';
 import AdminRoute from './components/routing/AdminRoute';
 import Forgot from './components/auth/Forgot';
 import Reset from './components/auth/Reset';
 
-const App = () => {
+const Routes = () => {
   return (
     <BrowserRouter>
-      <Layout>
-        <Switch>
-          <Route path='/' exact component={Home} />
-          <Route path='/signup' component={SignUp} />
-          <Route path='/signin' component={SignIn} />
-          <Route path='/auth/activate/:token' component={Activate} />
-          <PrivateRoute path='/dashboard' component={Dashboard} />
-          <AdminRoute path='/admin' component={Admin} />
-          <Route path='/auth/password/forgot' component={Forgot} />
-          <Route path='/auth/password/reset/:token' component={Reset} />
-        </Switch>
-      </Layout>
+      <Switch>
+        <Route path='/' exact component={Home} />
+        <Route path='/signup' exact component={Signup} />
+        <Route path='/signin' exact component={Signin} />
+        <Route path='/auth/activate/:token' exact component={Activate} />
+        <PrivateRoute path='/private' exact component={Dashboard} />
+        <AdminRoute path='/admin' exact component={Admin} />
+        <Route path='/auth/password/forgot' exact component={Forgot} />
+        <Route path='/auth/password/reset/:token' exact component={Reset} />
+      </Switch>
     </BrowserRouter>
   );
 };
 
-export default App;
+export default Routes;

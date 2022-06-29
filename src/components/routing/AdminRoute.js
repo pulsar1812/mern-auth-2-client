@@ -1,7 +1,6 @@
 import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
-
-import { isAuth } from '../auth/helpers';
+import { isAuth } from '../../helpers';
 
 const AdminRoute = ({ component: Component, ...rest }) => (
   <Route
@@ -10,7 +9,12 @@ const AdminRoute = ({ component: Component, ...rest }) => (
       isAuth() && isAuth().role === 'admin' ? (
         <Component {...props} />
       ) : (
-        <Redirect to='/signin' />
+        <Redirect
+          to={{
+            pathname: '/signin',
+            state: { from: props.location },
+          }}
+        />
       )
     }
   />

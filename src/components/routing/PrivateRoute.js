@@ -1,13 +1,21 @@
 import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
-
-import { isAuth } from '../auth/helpers';
+import { isAuth } from '../../helpers';
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route
     {...rest}
     render={(props) =>
-      !isAuth() ? <Redirect to='/signin' /> : <Component {...props} />
+      isAuth() ? (
+        <Component {...props} />
+      ) : (
+        <Redirect
+          to={{
+            pathname: '/signin',
+            state: { from: props.location },
+          }}
+        />
+      )
     }
   />
 );

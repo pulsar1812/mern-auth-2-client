@@ -1,47 +1,40 @@
 import React, { useState } from 'react';
+import Layout from '../Layout';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.min.css';
 
-const Forgot = () => {
-  const [formData, setFormData] = useState({
+const Forgot = ({ history }) => {
+  const [values, setValues] = useState({
     email: '',
-    buttonText: 'Request Password Reset Link',
+    buttonText: 'Request password reset link',
   });
 
-  const { email, buttonText } = formData;
+  const { email, buttonText } = values;
 
-  const handleChange = (event) => {
-    setFormData({ ...formData, [event.target.name]: event.target.value });
+  const handleChange = (name) => (event) => {
+    // console.log(event.target.value);
+    setValues({ ...values, [name]: event.target.value });
   };
 
-  const handleSubmit = async (event) => {
+  const clickSubmit = (event) => {
     event.preventDefault();
-    setFormData({ ...formData, buttonText: 'Requesting' });
-
-    const data = { email };
-
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
-
-    try {
-      const res = await axios.put(
-        `${process.env.REACT_APP_API}/auth/forgot-password`,
-        data,
-        config
-      );
-
-      console.log('Forgot Password Success', res);
-      toast.success(res.data.message);
-      setFormData({ ...formData, buttonText: 'Requested' });
-    } catch (err) {
-      console.log('Forgot Password Error', err.response.data);
-      toast.error(err.response.data.error);
-      setFormData({ ...formData, buttonText: 'Request Password Reset Link' });
-    }
+    setValues({ ...values, buttonText: 'Submitting' });
+    axios({
+      method: 'PUT',
+      url: `${process.env.REACT_APP_API}/forgot-password`,
+      data: { email },
+    })
+      .then((response) => {
+        console.log('FORGOT PASSWORD SUCCESS', response);
+        toast.success(response.data.message);
+        setValues({ ...values, buttonText: 'Requested' });
+      })
+      .catch((error) => {
+        console.log('FORGOT PASSWORD ERROR', error.response.data);
+        toast.error(error.response.data.error);
+        setValues({ ...values, buttonText: 'Request password reset link' });
+      });
   };
 
   const passwordForgotForm = () => (
@@ -49,16 +42,15 @@ const Forgot = () => {
       <div className='form-group'>
         <label className='text-muted'>Email</label>
         <input
-          type='email'
-          name='email'
+          onChange={handleChange('email')}
           value={email}
+          type='email'
           className='form-control'
-          onChange={handleChange}
         />
       </div>
 
       <div>
-        <button className='btn btn-primary' onClick={handleSubmit}>
+        <button className='btn btn-primary' onClick={clickSubmit}>
           {buttonText}
         </button>
       </div>
@@ -66,11 +58,13 @@ const Forgot = () => {
   );
 
   return (
-    <div className='col-md-6 offset-md-3'>
-      <ToastContainer />
-      <h1 className='p-5 text-center'>Forgot Password</h1>
-      {passwordForgotForm()}
-    </div>
+    <Layout>
+      <div className='col-md-6 offset-md-3'>
+        <ToastContainer />
+        <h1 className='p-5 text-center'>Forgot password</h1>
+        {passwordForgotForm()}
+      </div>
+    </Layout>
   );
 };
 
