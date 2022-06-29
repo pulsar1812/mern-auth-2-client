@@ -7,7 +7,7 @@ const App = () => {
     <Helmet>
       <meta charSet='utf-8' />
       <title>MERN Stack</title>
-      <link rel='canonical' href='https://mern-stack.com' />
+      <link rel='canonical' href='#' />
     </Helmet>
   );
   return (
@@ -15,7 +15,7 @@ const App = () => {
       {head()}
       <div className='col-md-6 offset-md-3 text-center'>
         <h1 className='p-5'>React Node MongoDB Authentication Boilerplate</h1>
-        <h2>MERN STACK</h2>
+        <h2>MERN Stack</h2>
         <hr />
         <p className='lead'>
           MERN stack login register system with account activation, forgot
